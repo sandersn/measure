@@ -26,7 +26,16 @@ function compile() {
                                   fn => fs.readFileSync(fn, { encoding: "utf-8" })),
             ts.sys,
             `/home/nathansa/ts/tests/cases/user/${repo}/`)
-        const errors = ts.getPreEmitDiagnostics(ts.createProgram(config.fileNames, config.options))
+        /** @type {ts.Diagnostic[]} */
+        let errors = []
+        try {
+            errors = ts.getPreEmitDiagnostics(ts.createProgram(config.fileNames, config.options))
+        }
+        catch (ex) {
+            console.log(repo + ' failed to compile.')
+            counts.push({ repo, count: null })
+            continue
+        }
         counts.push({ repo, count: errors.length })
     }
     return counts
@@ -46,6 +55,7 @@ const first = prs[0]
 const errorCounts = rebuild(first.sha)
 const parentErrorCounts = rebuild(first.parentSha)
 console.log(`Difference: ${parentErrorCounts[1].count - errorCounts[1].count}`);
+console.log(errorCounts)
 
 // checkout parent commit
 // compiler and get+count errors
