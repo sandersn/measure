@@ -2,16 +2,21 @@ const fs = require('fs')
 const sh = require('shelljs')
 const Gh = require('@octokit/rest')
 var gh = new Gh()
+/** @typedef {{ date: string, number: number, sha: string, parentSha: string }} Pr */
+
 async function main() {
     gh.authenticate({
         type: "token",
         token: fs.readFileSync('/home/nathansa/api.token', { encoding: 'utf-8' })
     })
-    all()
+    const rows = await all()
+    fs.writeFileSync('/home/nathansa/src/measure/prs.json', JSON.stringify(rows))
 }
+/** @returns {Promise<Pr[]>} */
 async function all() {
     sh.pushd('~/ts')
-    let i = 0;
+    let i = 0
+    let rows = []
     for (var page = 1; page <= 2; page++) {
         const search = await gh.search.issues({
             q: "is:pr is:closed author:sandersn repo:Microsoft/TypeScript",
@@ -33,12 +38,14 @@ async function all() {
                 sha: req.data.merge_commit_sha,
                 parentSha: sh.exec('git log --pretty=%P -n 1 ' + req.data.merge_commit_sha).stdout.trimRight()
             }
+            rows.push(row)
             console.log(JSON.stringify(row))
             // aim for #22449, last updated Jul 25 (???), but merged on Mar 9
             i++
-            if (i > 2 /* 166*/) break
+            if (i > 166) break
         }
     }
     sh.popd()
+    return rows
 }
 main()
