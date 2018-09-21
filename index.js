@@ -1,20 +1,44 @@
 const fs = require('fs')
+const sh = require('shelljs')
 const Gh = require('@octokit/rest')
 var gh = new Gh()
 async function main() {
     gh.authenticate({
         type: "token",
         token: fs.readFileSync('/home/nathansa/api.token', { encoding: 'utf-8' })
-    });
-    const search = await gh.search.issues({
-        q: "is:pr author:sandersn"
     })
-    // console.log(search.data.items[0])
-    const res = await gh.pullRequests.get({
-        owner: 'Microsoft',
-        repo: "Microsoft/TypeScript",
-        number: search.data.items[0].number,
-    })
-    console.log(res)
+    all()
+}
+async function all() {
+    sh.pushd('~/ts')
+    let i = 0;
+    for (var page = 1; page <= 2; page++) {
+        const search = await gh.search.issues({
+            q: "is:pr is:closed author:sandersn repo:Microsoft/TypeScript",
+            sort: "updated",
+            order: "desc",
+            per_page: 100,
+            page
+        })
+        for (const it of search.data.items) {
+            const req = await gh.pullRequests.get({
+                owner: "Microsoft",
+                repo: "TypeScript",
+                number: it.number
+            })
+            // console.log(req.data.merge_commit_sha)
+            const row = {
+                date: req.data.merged_at,
+                number: it.number,
+                sha: req.data.merge_commit_sha,
+                parentSha: sh.exec('git log --pretty=%P -n 1 ' + req.data.merge_commit_sha).stdout.trimRight()
+            }
+            console.log(JSON.stringify(row))
+            // aim for #22449, last updated Jul 25 (???), but merged on Mar 9
+            i++
+            if (i > 2 /* 166*/) break
+        }
+    }
+    sh.popd()
 }
 main()
