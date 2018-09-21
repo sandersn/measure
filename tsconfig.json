@@ -8,6 +8,8 @@
         "module": "commonjs",
     },
     "files": [
-        "index.js",
+        "githubPrs.js",
+        "errors.js",
+        "anys.js",
     ]
 }

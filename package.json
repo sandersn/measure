@@ -4,8 +4,9 @@
   "description": "Measure precision/recall of Typescript PRs",
   "main": "githubPrs.js",
   "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1",
-      "prs": "node githubPrs.js"
+      "prs": "node githubPrs.js",
+      "errors": "node errors.js",
+      "anys": "node anys.js",
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +14,7 @@
     "@octokit/rest": "^15.11.2",
     "@types/node": "^10.10.1",
     "@types/shelljs": "^0.8.0",
-    "shelljs": "^0.8.2"
+    "shelljs": "^0.8.2",
+    "typescript": "^3.0.3"
   }
 }
