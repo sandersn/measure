@@ -31,14 +31,15 @@ async function all() {
                 repo: "TypeScript",
                 number: it.number
             })
-            // console.log(req.data.merge_commit_sha)
+            /** @type {Pr} */
             const row = {
                 date: req.data.merged_at,
                 number: it.number,
                 sha: req.data.merge_commit_sha,
                 parentSha: sh.exec('git log --pretty=%P -n 1 ' + req.data.merge_commit_sha).stdout.trimRight()
             }
-            rows.push(row)
+            if (row.date != null && !row.parentSha.match(/ /))
+                rows.push(row)
             console.log(JSON.stringify(row))
             // aim for #22449, last updated Jul 25 (???), but merged on Mar 9
             i++

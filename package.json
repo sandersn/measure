@@ -4,7 +4,8 @@
   "description": "Measure precision/recall of Typescript PRs",
   "main": "githubPrs.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "prs": "node githubPrs.js"
   },
   "author": "",
   "license": "ISC",
