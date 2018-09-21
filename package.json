@@ -6,7 +6,7 @@
   "scripts": {
       "prs": "node githubPrs.js",
       "errors": "node errors.js",
-      "anys": "node anys.js",
+      "anys": "node anys.js"
   },
   "author": "",
   "license": "ISC",
