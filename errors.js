@@ -8,12 +8,12 @@ const prs = JSON.parse(fs.readFileSync('/home/nathansa/src/measure/prs.json', { 
 const repos = JSON.parse(fs.readFileSync('/home/nathansa/src/measure/repos.json', { encoding: "utf-8" }))
 
 /**
- * @param {number} i - HACK: Skip async from PRs 22-26 when async never completed
+ * @param {number} i - HACK: Skip async from PRs 22-27 when async never completed
  * @param {string} commit */
 function countErrors(i, commit) {
     measure.rebuild(commit)
     return measure.compile(repos, (ts, program) => {
-        if (program.getRootFileNames()[0].startsWith('/home/nathansa/ts/tests/cases/user/async') && 21 < i && i < 27) return null
+        if (program.getRootFileNames()[0].startsWith('/home/nathansa/ts/tests/cases/user/async') && 22 <= i && i <= 27) return null
         let errors = []
         let start = Date.now()
         try {

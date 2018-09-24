@@ -13,34 +13,30 @@ function test(ts, program) {
     let errors = []
     let count = 0
     const checker = program.getTypeChecker()
+    const privateTs = /** @type {*} I KNOW what I'm doing */(ts)
     /**
 
      * @param {import('typescript').Node} node
      * @return {void}
      */
     const walk = function (node) {
-        switch (node.kind) {
-            case ts.SyntaxKind.Identifier:
-                if (checker.getTypeAtLocation(node) === /** @type {*} */(checker).getAnyType()) {
-                    count++;
-                }
-            default:
-                return ts.forEachChild(node, walk)
+
+        if ((privateTs.isExpressionNode(node) || node.kind === ts.SyntaxKind.Identifier || privateTs.isDeclarationName(node)) &&
+            checker.getTypeAtLocation(node) === /** @type {*} */(checker).getAnyType()) {
+            count++
         }
+        return ts.forEachChild(node, walk)
     }
     try {
         for (const file of program.getRootFileNames()) {
-            console.log('walking ' + file)
             const sourceFile = program.getSourceFile(file)
             if (sourceFile) {
                 walk(sourceFile)
-                console.log(count)
             }
             else {
                 console.log("couldn't find " + file)
             }
         }
-        // errors = ts.getPreEmitDiagnostics(program)
     }
     catch (ex) {
         console.log('         failed to compile:')
@@ -52,10 +48,10 @@ function test(ts, program) {
 
 const ts = require('typescript')
 const config = ts.parseJsonSourceFileConfigFileContent(
-    ts.readJsonConfigFile(`/home/nathansa/ts/tests/cases/user/acorn/tsconfig.json`,
+    ts.readJsonConfigFile(`/home/nathansa/ts/tests/cases/user/async/tsconfig.json`,
                           fn => fs.readFileSync(fn, { encoding: "utf-8" })),
     ts.sys,
-    `/home/nathansa/ts/tests/cases/user/acorn/`)
+    `/home/nathansa/ts/tests/cases/user/async/`)
 const program = ts.createProgram(config.fileNames, config.options)
 console.log(test(ts, program))
 
