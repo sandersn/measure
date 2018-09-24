@@ -34,6 +34,7 @@ function compile(repos, getCount) {
     wrapped(module, module.exports, require, './TypeScript/built/local/typescript.js', './TypeScript/built/local');
     /** @type {import('./TypeScript/built/local/typescript')} */
     const ts = module.exports;
+
     const counts = []
     for (const repo of repos) {
         process.stdout.write(' - ' + repo)

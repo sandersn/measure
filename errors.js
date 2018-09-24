@@ -12,11 +12,21 @@ function countErrors(commit) {
     measure.rebuild(commit)
     return measure.compile(repos, (ts, program) => {
         let errors = []
+        let start = Date.now()
         try {
-            errors = ts.getPreEmitDiagnostics(program)
+            errors = ts.getPreEmitDiagnostics(program, undefined, {
+                isCancellationRequested() {
+                    return Date.now() - start > 60000;
+                },
+                throwIfCancellationRequested() {
+                    if (this.isCancellationRequested()) {
+                        throw new Error("Compilation timed out")
+                    }
+                }
+            })
         }
         catch (ex) {
-            console.log('failed to compile:')
+            console.log('         failed to compile:')
             console.log(ex)
             return null
         }
