@@ -7,23 +7,17 @@ const prs = JSON.parse(fs.readFileSync('/home/nathansa/src/measure/prs.json', { 
 /** @type {string[]} */
 const repos = JSON.parse(fs.readFileSync('/home/nathansa/src/measure/repos.json', { encoding: "utf-8" }))
 
-/** @param {string} commit */
-function countErrors(commit) {
+/**
+ * @param {number} i - HACK: Skip async from PRs 22-26 when async never completed
+ * @param {string} commit */
+function countErrors(i, commit) {
     measure.rebuild(commit)
     return measure.compile(repos, (ts, program) => {
+        if (program.getRootFileNames()[0].startsWith('/home/nathansa/ts/tests/cases/user/async') && 21 < i && i < 27) return null
         let errors = []
         let start = Date.now()
         try {
-            errors = ts.getPreEmitDiagnostics(program, undefined, {
-                isCancellationRequested() {
-                    return Date.now() - start > 60000;
-                },
-                throwIfCancellationRequested() {
-                    if (this.isCancellationRequested()) {
-                        throw new Error("Compilation timed out")
-                    }
-                }
-            })
+            errors = ts.getPreEmitDiagnostics(program)
         }
         catch (ex) {
             console.log('         failed to compile:')
@@ -50,8 +44,8 @@ function main(previous) {
         errors.push({
             date: pr.date,
             number: pr.number,
-            before: { sha: pr.sha, repos: countErrors(pr.sha) },
-            after: { sha: pr.parentSha, repos: countErrors(pr.parentSha) }
+            before: { sha: pr.sha, repos: countErrors(i, pr.sha) },
+            after: { sha: pr.parentSha, repos: countErrors(i, pr.parentSha) }
         })
         console.log(`*** DONE: ${i} of ${prs.length} **************`)
         fs.writeFileSync('errors.json', JSON.stringify(errors))
