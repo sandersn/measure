@@ -8,6 +8,8 @@
         "module": "commonjs",
     },
     "files": [
+        "types.d.ts",
+        "measure.js",
         "githubPrs.js",
         "errors.js",
         "anys.js",
