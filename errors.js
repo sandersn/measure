@@ -41,6 +41,16 @@ function main(previous) {
             console.log(`Already ran ${pr.number} (${i}), skipping.`)
             continue
         }
+        if (i === 39) {
+            console.log(`PR 39 doesn't build, skipping.`)
+            errors.push({
+                date: pr.date,
+                number: pr.number,
+                before: { sha: pr.sha, repos: repos.map(repo => ({ repo, count: null })) },
+                after: { sha: pr.parentSha, repos: repos.map(repo => ({ repo, count: null })) }
+            })
+            continue
+        }
         errors.push({
             date: pr.date,
             number: pr.number,
