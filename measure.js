@@ -21,26 +21,27 @@ function rebuild(commit) {
 
 /**
  * compile and get+count errors
+ * @param {string} tsPath
  * @param {string[]} repos
  * @param {(ts: typeof import('./TypeScript/built/local/typescript'),
             program: import('./TypeScript/built/local/typescript').Program) => number | null} getCount
  * @return {TestCount[]}
  */
-function compile(repos, getCount) {
-    const src = fs.readFileSync('./TypeScript/built/local/typescript.js', "utf8")
+function compile(tsPath, repos, getCount) {
+    const src = fs.readFileSync(tsPath + '/typescript.js', "utf8")
     const wrappedSrc = `(function (module, exports, require, __filename, __dirname){${src}\n})`
     const wrapped = vm.runInThisContext(wrappedSrc)
     const module = /** @type {*} */({ exports: {} })
-    wrapped(module, module.exports, require, './TypeScript/built/local/typescript.js', './TypeScript/built/local');
+    wrapped(module, module.exports, require, tsPath + '/typescript.js', tsPath);
     /** @type {import('./TypeScript/built/local/typescript')} */
     const ts = module.exports;
 
     const counts = []
     for (const repo of repos) {
         process.stdout.write(' - ' + repo)
-        const path = fs.existsSync(`/home/nathansa/ts/tests/cases/user/${repo}/tsconfig.json`) ?
-            `/home/nathansa/ts/tests/cases/user/${repo}/` :
-            `/home/nathansa/ts/tests/cases/user/${repo}/${repo}/`
+        const path = fs.existsSync(`/home/nathansa/TypeScript/tests/cases/user/${repo}/tsconfig.json`) ?
+            `/home/nathansa/TypeScript/tests/cases/user/${repo}/` :
+            `/home/nathansa/TypeScript/tests/cases/user/${repo}/${repo}/`
         const config = ts.parseJsonSourceFileConfigFileContent(
             ts.readJsonConfigFile(path + 'tsconfig.json', fn => fs.readFileSync(fn, { encoding: "utf-8" })),
             ts.sys,
@@ -64,11 +65,13 @@ function read(path) {
             program: import('./TypeScript/built/local/typescript').Program) => number} getCount
  * @param {string[]} repos
  * @param {number} i - HACK: Skip async from PRs 22-27 when async never completed
+ * ALSO HACK: Decide where Typescript will get built based on PR number
  */
 function count(commit, getCount, repos, i) {
     rebuild(commit)
-    return compile(repos, (ts, program) => {
-        if (program.getRootFileNames()[0].startsWith('/home/nathansa/ts/tests/cases/user/async') && 22 <= i && i <= 27) return null
+    const tsPath = i < 75 ? './TypeScript/built/local' : './TypeScript/lib'
+    return compile(tsPath, repos, (ts, program) => {
+        if (program.getRootFileNames()[0].startsWith('/home/nathansa/TypeScript/tests/cases/user/async') && 22 <= i && i <= 27) return null
         /** @type {number | null} */
         let start = Date.now()
         try {
@@ -80,6 +83,11 @@ function count(commit, getCount, repos, i) {
             return null
         }
     });
+}
+
+/** @type {Object<number,string>} */
+const skips = {
+    39: "Doesn't build",
 }
 
 /**
@@ -105,8 +113,8 @@ function run(previousPath, prPath, repoPath, getCount) {
             console.log(`Already ran ${pr.number} (${i}), skipping.`)
             continue
         }
-        if (i === 39) {
-            console.log(`PR 39 doesn't build, skipping.`)
+        if (i in skips) {
+            console.log(`PR ${i}: ${skips[i]}, skipping.`)
             errors.push({
                 date: pr.date,
                 number: pr.number,
