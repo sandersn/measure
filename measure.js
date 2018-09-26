@@ -23,8 +23,8 @@ function rebuild(commit) {
  * compile and get+count errors
  * @param {string} tsPath
  * @param {string[]} repos
- * @param {(ts: typeof import('./TypeScript/built/local/typescript'),
-            program: import('./TypeScript/built/local/typescript').Program) => number | null} getCount
+ * @param {(ts: typeof import('typescript'),
+            program: import('typescript').Program) => number | null} getCount
  * @return {TestCount[]}
  */
 function compile(tsPath, repos, getCount) {
@@ -33,7 +33,7 @@ function compile(tsPath, repos, getCount) {
     const wrapped = vm.runInThisContext(wrappedSrc)
     const module = /** @type {*} */({ exports: {} })
     wrapped(module, module.exports, require, tsPath + '/typescript.js', tsPath);
-    /** @type {import('./TypeScript/built/local/typescript')} */
+    /** @type {import('typescript')} */
     const ts = module.exports;
 
     const counts = []
@@ -61,19 +61,17 @@ function read(path) {
 
 /**
  * @param {string} commit
- * @param {(ts: typeof import('./TypeScript/built/local/typescript'),
-            program: import('./TypeScript/built/local/typescript').Program) => number} getCount
+ * @param {(ts: typeof import('typescript'),
+            program: import('typescript').Program) => number} getCount
  * @param {string[]} repos
  * @param {number} i - HACK: Skip async from PRs 22-27 when async never completed
- * ALSO HACK: Decide where Typescript will get built based on PR number
+ * ALSO HACK: For PRs 76-91, Typescript was built in lib/ not built/local/
  */
 function count(commit, getCount, repos, i) {
     rebuild(commit)
-    const tsPath = i < 75 ? './TypeScript/built/local' : './TypeScript/lib'
+    const tsPath = 76 <= i && i <= 92 ? './TypeScript/lib' : './TypeScript/built/local'
     return compile(tsPath, repos, (ts, program) => {
         if (program.getRootFileNames()[0].startsWith('/home/nathansa/TypeScript/tests/cases/user/async') && 22 <= i && i <= 27) return null
-        /** @type {number | null} */
-        let start = Date.now()
         try {
             return getCount(ts, program)
         }
@@ -94,8 +92,8 @@ const skips = {
  * @param {string} previousPath
  * @param {string} prPath
  * @param {string} repoPath
- * @param {(ts: typeof import('./TypeScript/built/local/typescript'),
-            program: import('./TypeScript/built/local/typescript').Program) => number} getCount
+ * @param {(ts: typeof import('typescript'),
+            program: import('typescript').Program) => number} getCount
  */
 function run(previousPath, prPath, repoPath, getCount) {
     /** @type {Pr[]} */
