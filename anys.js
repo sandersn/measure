@@ -1,14 +1,14 @@
 const measure = require('./measure')
 measure(
-    '/home/nathansa/src/measure/anys.json',
-    '/home/nathansa/src/measure/prs.json',
-    '/home/nathansa/src/measure/repos.json',
+    './anys.json',
+    './prs.json',
+    './repos.json',
     (ts, program) => {
         let count = 0
         const checker = program.getTypeChecker()
         const privateTs = /** @type {*} I KNOW what I'm doing */(ts)
         /**
-         * @param {import('./TypeScript/built/local/typescript').Node} node
+         * @param {import('typescript').Node} node
          * @return {void}
          */
         const walk = function (node) {
