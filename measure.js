@@ -65,11 +65,11 @@ function read(path) {
             program: import('typescript').Program) => number} getCount
  * @param {string[]} repos
  * @param {number} i - HACK: Skip async from PRs 22-27 when async never completed
- * ALSO HACK: For PRs 76-91, Typescript was built in lib/ not built/local/
+ * ALSO HACK: For PRs 75-91, Typescript was built in lib/ not built/local/
  */
 function count(commit, getCount, repos, i) {
     rebuild(commit)
-    const tsPath = 76 <= i && i <= 92 ? './TypeScript/lib' : './TypeScript/built/local'
+    const tsPath = 75 <= i && i <= 92 ? './TypeScript/lib' : './TypeScript/built/local'
     return compile(tsPath, repos, (ts, program) => {
         if (program.getRootFileNames()[0].startsWith('/home/nathansa/TypeScript/tests/cases/user/async') && 22 <= i && i <= 27) return null
         try {
@@ -128,7 +128,7 @@ function run(previousPath, prPath, repoPath, getCount) {
             before: { sha: pr.sha, repos: count(pr.sha, getCount, repos, i) },
         })
         console.log(`*** DONE: ${i} of ${prs.length} ***************************************************`)
-        fs.writeFileSync('errors.json', JSON.stringify(errors))
+        fs.writeFileSync(previousPath, JSON.stringify(errors))
     }
 }
 
