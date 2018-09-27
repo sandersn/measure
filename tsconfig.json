@@ -10,6 +10,7 @@
     "files": [
         "types.d.ts",
         "measure.js",
+        "outputCsv.js",
         "githubPrs.js",
         "errors.js",
         "anys.js",

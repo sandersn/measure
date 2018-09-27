@@ -131,5 +131,6 @@ function run(previousPath, prPath, repoPath, getCount) {
         fs.writeFileSync(previousPath, JSON.stringify(errors))
     }
 }
+run.read = read
 
 module.exports = run
