@@ -1,4 +1,3 @@
-const ts = require('typescript')
 const fs = require('fs')
 const sh = require('shelljs')
 const cp = require('child_process')
@@ -57,30 +56,27 @@ function resetUserTest(repo) {
 /**
  * compile and get+count errors
  * @param {string[]} repos
- * @param {(ts: typeof import('typescript'),
-            program: import('typescript').Program) => [number, number]} getCount
- * @param {(ts: typeof import('typescript'),
-            program: import('typescript').Program,
-            service: import('typescript').LanguageService) => void} refactorAll
+ * @param {(ts: typeof import('./TypeScript/built/local/typescript'),
+            program: import('./TypeScript/built/local/typescript').Program) => [number, number]} getCount
+ * @param {(ts: typeof import('./TypeScript/built/local/typescript'),
+            program: import('./TypeScript/built/local/typescript').Program,
+            service: import('./TypeScript/built/local/typescript').LanguageService) => void} refactorAll
  * @return {[string, string, { [s: string]: [number, number] }, { [s: string]: [number, number] }]}
  */
 function codeFix(repos, getCount, refactorAll) {
     const { commit, date } = getCommit()
-    const src = fs.readFileSync('./TypeScript/built/local/typescript.js', "utf8")
-    const wrappedSrc = `(function (module, exports, require, __filename, __dirname){${src}\n})`
-    const wrapped = vm.runInThisContext(wrappedSrc)
-    const module = /** @type {*} */({ exports: {} })
-    wrapped(module, module.exports, require, './TypeScript/built/local/typescript.js', './TypeScript/built/local')
-    /** @type {import('typescript')} */
-    const ts = module.exports
+    const ts = require('./TypeScript/built/local/typescript')
 
     /** @type {{ [s: string]: [number, number] }} */
     const anys = {}
     /** @type {{ [s: string]: [number, number] }} */
     const errors = {}
     for (const repo of repos) {
-        process.stdout.write(' - ' + repo)
         resetUserTest(repo)
+        console.log(' - ' + repo)
+        if (repo === 'chrome-devtools-frontend') {
+            continue
+        }
         const path = fs.existsSync(`/home/nathansa/TypeScript/tests/cases/user/${repo}/tsconfig.json`) ?
             `/home/nathansa/TypeScript/tests/cases/user/${repo}/` :
             `/home/nathansa/TypeScript/tests/cases/user/${repo}/${repo}/`
@@ -92,7 +88,7 @@ function codeFix(repos, getCount, refactorAll) {
         /** @type {Object<string, { version: number }>} */
         const files = {}
         config.fileNames.forEach(fn => files[fn] = { version: 0 })
-        /** @type {import("typescript").LanguageServiceHost} */
+        /** @type {ts.LanguageServiceHost} */
         const servicesHost = {
             getScriptFileNames: () => config.fileNames,
             getScriptVersion: fn => files[fn] && files[fn].version.toString(),
@@ -112,7 +108,7 @@ function codeFix(repos, getCount, refactorAll) {
         // before and after. The refactor probably doesn't work well enough to actually make this happen!
         const [beforeAnys, beforeErrors] = getCount(ts, program)
         console.log(`  (${beforeAnys})`)
-        refactorAll(ts, program, service)
+            refactorAll(ts, program, service)
         const [afterAnys, afterErrors] = getCount(ts, ts.createProgram(config.fileNames, config.options))
         console.log(`  (${afterAnys})`)
         anys[repo] = [beforeAnys, afterAnys]
@@ -125,27 +121,28 @@ function main() {
     const diffs = read('./diffs.json')
     // TODO: Import counters from anys/errors.js
     // TODO: Save results somewhere (key should be current commit)
-    const [commit, date, anys, errors] = codeFix(read('./repos.json'),
-            (ts, program) => [countAnys(ts, program), ts.getPreEmitDiagnostics(program).length],
-            (ts, program, service) => {
-        /** @type {any} */
-        const privateTs = ts
-        for (const file of program.getRootFileNames()) {
-            const sourceFile = program.getSourceFile(file)
-            if (sourceFile) {
-                const fixId = "inferFromUsage"
-                const { changes, commands } = service.getCombinedCodeFix({ type: "file", fileName: file }, fixId, {}, {})
-                for (const change of changes) {
-                    const oldText = fs.readFileSync(file, 'utf-8')
-                    const newText = privateTs.textChanges.applyChanges(oldText, change.textChanges)
-                    fs.writeFileSync(file, newText)
+    const [commit, date, anys, errors] = codeFix(
+        read('./repos.json'),
+        (ts, program) => [/** @type {*} */(countAnys)(ts, program), ts.getPreEmitDiagnostics(program).length],
+        (ts, program, service) => {
+            /** @type {any} */
+            const privateTs = ts
+            for (const file of program.getRootFileNames()) {
+                const sourceFile = program.getSourceFile(file)
+                if (sourceFile) {
+                    const fixId = "inferFromUsage"
+                    const { changes } = service.getCombinedCodeFix({ type: "file", fileName: file }, fixId, {}, {})
+                    for (const change of changes) {
+                        const oldText = fs.readFileSync(file, 'utf-8')
+                        const newText = privateTs.textChanges.applyChanges(oldText, change.textChanges)
+                        fs.writeFileSync(file, newText)
+                    }
+                }
+                else {
+                    throw new Error("couldn't find " + file)
                 }
             }
-            else {
-                throw new Error("couldn't find " + file)
-            }
-        }
-    })
+        })
     diffs[commit] = { date, anys, errors }
     fs.writeFileSync('./diffs.json', JSON.stringify(diffs))
 }
