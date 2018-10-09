@@ -48,4 +48,4 @@ function writeCsv(rows) {
         console.log(row.join(','))
     }
 }
-writeCsv(afters(anys))
+writeCsv(diffs(anys))
