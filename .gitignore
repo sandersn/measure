@@ -1,4 +1,6 @@
 node_modules
 *.json
 *.csv
+*.ods
+user/
 TypeScript/
