@@ -15,3 +15,16 @@ interface Count {
     after: { sha: string, repos: TestCount[] }
 }
 
+interface MapLike<T> {
+    [s: string]: T
+}
+
+type BeforeAfter = MapLike<[number, number]>;
+
+interface RefactorCount {
+    date: string,
+    anys: BeforeAfter,
+    errors: BeforeAfter
+}
+
+type Refactors = MapLike<RefactorCount>

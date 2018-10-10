@@ -51,8 +51,6 @@ function resetUserTest(repo) {
     }
 }
 
-/** @typedef {[string, string, object, object]} CodeFixCount */
-
 /**
  * compile and get+count errors
  * @param {string[]} repos
@@ -61,19 +59,20 @@ function resetUserTest(repo) {
  * @param {(ts: typeof import('./TypeScript/built/local/typescript'),
             program: import('./TypeScript/built/local/typescript').Program,
             service: import('./TypeScript/built/local/typescript').LanguageService) => void} refactorAll
- * @return {[string, string, { [s: string]: [number, number] }, { [s: string]: [number, number] }]}
+ * @return {{ commit: string, count: RefactorCount }}
  */
 function codeFix(repos, getCount, refactorAll) {
     const { commit, date } = getCommit()
     const ts = require('./TypeScript/built/local/typescript')
 
-    /** @type {{ [s: string]: [number, number] }} */
+    /** @type {BeforeAfter} */
     const anys = {}
-    /** @type {{ [s: string]: [number, number] }} */
+    /** @type {BeforeAfter} */
     const errors = {}
     for (const repo of repos) {
         resetUserTest(repo)
         console.log(' - ' + repo)
+        // chrome-devtools-frontend is too big to refactorAll
         if (repo === 'chrome-devtools-frontend') {
             continue
         }
@@ -114,14 +113,13 @@ function codeFix(repos, getCount, refactorAll) {
         anys[repo] = [beforeAnys, afterAnys]
         errors[repo] = [beforeErrors, afterErrors]
     }
-    return [commit, date, anys, errors]
+    return { commit, count: {date, anys, errors}}
 }
 
 function main() {
+    /** @type {Refactors} */
     const diffs = read('./diffs.json')
-    // TODO: Import counters from anys/errors.js
-    // TODO: Save results somewhere (key should be current commit)
-    const [commit, date, anys, errors] = codeFix(
+    const result = codeFix(
         read('./repos.json'),
         (ts, program) => [/** @type {*} */(countAnys)(ts, program), ts.getPreEmitDiagnostics(program).length],
         (ts, program, service) => {
@@ -143,7 +141,7 @@ function main() {
                 }
             }
         })
-    diffs[commit] = { date, anys, errors }
+    diffs[result.commit] = result.count
     fs.writeFileSync('./diffs.json', JSON.stringify(diffs))
 }
 

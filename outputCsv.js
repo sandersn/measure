@@ -6,6 +6,8 @@ const { read } = require('./measure')
 const anys = read('./anys.json')
 /** @type {string[]} */
 const repos = read('./repos.json')
+/** @type {Refactors} */
+const refactors = read('./diffs.json')
 
 /**
  * @template T,U,V
@@ -48,4 +50,26 @@ function writeCsv(rows) {
         console.log(row.join(','))
     }
 }
-writeCsv(diffs(anys))
+writeCsv(diffs2(refactors))
+
+/** @param {Refactors} refactors */
+function diffs2(refactors) {
+    // produce four rows plus a header:
+    // 1. header (repos)
+    // 2. before-anys
+    // 3. after-anys
+    // 4. before-errors
+    // 5. after-errors3. after-anys
+    // 4. before-errors
+    // 5. after-errors
+    let rs = repos.filter(r => r !== 'chrome-devtools-frontend')
+    for (const commit in refactors) {
+        // TODO: I actually only care about ONE commit right now (and not the date at all)
+        const beforeAnys = rs.map(r => refactors[commit].anys[r][0])
+        const afterAnys = rs.map(r => refactors[commit].anys[r][1])
+        const beforeErrors = rs.map(r => refactors[commit].errors[r][0])
+        const afterErrors = rs.map(r => refactors[commit].errors[r][1])
+        return [rs, beforeAnys, afterAnys, beforeErrors, afterErrors]
+    }
+    return []
+}
