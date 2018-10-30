@@ -86,10 +86,6 @@ function diffs2(refactors) {
         const row = [r]
         for (const commit in refactors) {
             const [before, after] = refactors[commit].errors[r]
-            if (before === 0) {
-                console.log(r, commit, 'had no errors.')
-                continue
-            }
             row.push('' + (before - after))
         }
         acc.push(row)
