@@ -23,6 +23,7 @@ type BeforeAfter = MapLike<[number, number]>;
 
 interface RefactorCount {
     date: string,
+    subject: string,
     anys: BeforeAfter,
     errors: BeforeAfter
 }

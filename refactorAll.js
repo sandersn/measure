@@ -8,10 +8,11 @@ const { read, countAnys } = require('./measure')
 function getCommit() {
     sh.pushd('./TypeScript')
     const commit = sh.exec('git log -1 --format=%H').stdout.trimRight()
+    const subject = sh.exec('git log -1 --format=%s').stdout.trimRight()
     const date = sh.exec('git log -1 --format=%ad').stdout.trimRight()
     sh.exec('jake')
     sh.popd()
-    return { commit, date }
+    return { commit, subject, date }
 }
 
 /**
@@ -62,7 +63,7 @@ function resetUserTest(repo) {
  * @return {{ commit: string, count: RefactorCount }}
  */
 function codeFix(repos, getCount, refactorAll) {
-    const { commit, date } = getCommit()
+    const { commit, subject, date } = getCommit()
     const ts = require('./TypeScript/built/local/typescript')
 
     /** @type {BeforeAfter} */
@@ -83,7 +84,7 @@ function codeFix(repos, getCount, refactorAll) {
             ts.readJsonConfigFile(path + 'tsconfig.json', fn => fs.readFileSync(fn, { encoding: "utf-8" })),
             ts.sys,
             path)
-        config.options.noImplicitAny = true
+        config.options.noImplicitAny = false
         /** @type {Object<string, { version: number }>} */
         const files = {}
         config.fileNames.forEach(fn => files[fn] = { version: 0 })
@@ -113,7 +114,7 @@ function codeFix(repos, getCount, refactorAll) {
         anys[repo] = [beforeAnys, afterAnys]
         errors[repo] = [beforeErrors, afterErrors]
     }
-    return { commit, count: {date, anys, errors}}
+    return { commit, count: {subject, date, anys, errors}}
 }
 
 function main() {

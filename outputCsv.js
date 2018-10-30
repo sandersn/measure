@@ -54,7 +54,7 @@ writeCsv(diffs2(refactors))
 
 /** @param {Refactors} refactors */
 function diffs2(refactors) {
-    // produce four rows plus a header:
+    // produce one row per repo plus a header, twice:
     // 1. header (repos)
     // 2. before-anys
     // 3. after-anys
@@ -63,13 +63,36 @@ function diffs2(refactors) {
     // 4. before-errors
     // 5. after-errors
     let rs = repos.filter(r => r !== 'chrome-devtools-frontend')
-    for (const commit in refactors) {
-        // TODO: I actually only care about ONE commit right now (and not the date at all)
-        const beforeAnys = rs.map(r => refactors[commit].anys[r][0])
-        const afterAnys = rs.map(r => refactors[commit].anys[r][1])
-        const beforeErrors = rs.map(r => refactors[commit].errors[r][0])
-        const afterErrors = rs.map(r => refactors[commit].errors[r][1])
-        return [rs, beforeAnys, afterAnys, beforeErrors, afterErrors]
+    const acc = []
+    acc.push(['ANYS'])
+    acc.push(['', ...Object.keys(refactors).map(commit => refactors[commit].subject)])
+    for (const r of rs) {
+        const row = [r]
+        for (const commit in refactors) {
+            const [before, after] = refactors[commit].anys[r]
+            if (before === 0) {
+                console.log(r, commit, 'had no anys!')
+                continue
+            }
+            row.push('' + ((before - after) / before))
+        }
+        acc.push(row)
     }
-    return []
+    acc.push(['', ...Object.keys(refactors).map(_ => '')])
+    acc.push(['ERRORS'])
+
+    acc.push(['', ...Object.keys(refactors).map(commit => refactors[commit].subject)])
+    for (const r of rs) {
+        const row = [r]
+        for (const commit in refactors) {
+            const [before, after] = refactors[commit].errors[r]
+            if (before === 0) {
+                console.log(r, commit, 'had no errors.')
+                continue
+            }
+            row.push('' + (before - after))
+        }
+        acc.push(row)
+    }
+    return acc
 }
