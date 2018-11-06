@@ -63,22 +63,35 @@ function diffs2(refactors) {
     // 4. before-errors
     // 5. after-errors
     let rs = repos.filter(r => r !== 'chrome-devtools-frontend')
-    const acc = []
-    acc.push(['ANYS'])
-    acc.push(['', ...Object.keys(refactors).map(commit => refactors[commit].subject)])
+    let beforeSum = 0
+    const acc = [['ANYS']]
+    acc.push(['', 'BEFORE', ...Object.keys(refactors).map(commit => refactors[commit].subject)])
     for (const r of rs) {
+        let first = true
         const row = [r]
         for (const commit in refactors) {
             const [before, after] = refactors[commit].anys[r]
-            if (before === 0) {
-                console.log(r, commit, 'had no anys!')
-                continue
+            if (first) {
+                beforeSum += before
+                row.push('' + before)
+                first = false
             }
-            row.push('' + ((before - after) / before))
+            row.push('' + after)
         }
         acc.push(row)
     }
-    acc.push(['', ...Object.keys(refactors).map(_ => '')])
+    const sums = []
+    for (const commit in refactors) {
+        let sum = 0
+        for (const r in refactors[commit].anys) {
+            sum += refactors[commit].anys[r][1]
+        }
+        sums.push(sum)
+    }
+    acc.push(["TOTAL", '' + beforeSum, ...sums.map(n => '' + n)])
+    acc.push(["TOTAL%", '1.0', ...sums.map(n => '' + (n / beforeSum))])
+
+    acc.push([''])
     acc.push(['ERRORS'])
 
     acc.push(['', ...Object.keys(refactors).map(commit => refactors[commit].subject)])
@@ -90,5 +103,6 @@ function diffs2(refactors) {
         }
         acc.push(row)
     }
+
     return acc
 }
