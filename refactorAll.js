@@ -129,8 +129,7 @@ function main() {
             for (const file of program.getRootFileNames()) {
                 const sourceFile = program.getSourceFile(file)
                 if (sourceFile) {
-                    const fixId = "inferFromUsage"
-                    const { changes } = service.getCombinedCodeFix({ type: "file", fileName: file }, fixId, {}, {})
+                    const { changes } = service.getCombinedCodeFix({ type: "file", fileName: file }, "inferFromUsage", {}, {})
                     for (const change of changes) {
                         const oldText = fs.readFileSync(file, 'utf-8')
                         const newText = privateTs.textChanges.applyChanges(oldText, change.textChanges)

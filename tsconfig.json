@@ -12,6 +12,7 @@
         "measure.js",
         "errors.js",
         "anys.js",
+        "overloads.js",
         "outputCsv.js",
         "refactorAll.js",
         "githubPrs.js",
