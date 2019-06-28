@@ -13,7 +13,7 @@
         "errors.js",
         "anys.js",
         "experiments/overloads.js",
-        "experiments/consecutivejsdoc.js",
+        "experiments/consecutiveJsdoc.js",
         "outputCsv.js",
         "refactorAll.js",
         "githubPrs.js",
