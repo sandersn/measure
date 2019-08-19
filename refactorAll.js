@@ -10,7 +10,7 @@ function getCommit() {
     const commit = sh.exec('git log -1 --format=%H').stdout.trimRight()
     const subject = sh.exec('git log -1 --format=%s').stdout.trimRight()
     const date = sh.exec('git log -1 --format=%ad').stdout.trimRight()
-    sh.exec('jake')
+    sh.exec('gulp')
     sh.popd()
     return { commit, subject, date }
 }
@@ -108,7 +108,7 @@ function codeFix(repos, getCount, refactorAll) {
         // before and after. The refactor probably doesn't work well enough to actually make this happen!
         const [beforeAnys, beforeErrors] = getCount(ts, program)
         console.log(`  (${beforeAnys})`)
-            refactorAll(ts, program, service)
+        refactorAll(ts, program, service)
         const [afterAnys, afterErrors] = getCount(ts, ts.createProgram(config.fileNames, config.options))
         console.log(`  (${afterAnys})`)
         anys[repo] = [beforeAnys, afterAnys]
@@ -129,11 +129,16 @@ function main() {
             for (const file of program.getRootFileNames()) {
                 const sourceFile = program.getSourceFile(file)
                 if (sourceFile) {
-                    const { changes } = service.getCombinedCodeFix({ type: "file", fileName: file }, "inferFromUsage", {}, {})
-                    for (const change of changes) {
-                        const oldText = fs.readFileSync(file, 'utf-8')
-                        const newText = privateTs.textChanges.applyChanges(oldText, change.textChanges)
-                        fs.writeFileSync(file, newText)
+                    try {
+                        const { changes } = service.getCombinedCodeFix({ type: "file", fileName: file }, "inferFromUsage", {}, {})
+                        for (const change of changes) {
+                            const oldText = fs.readFileSync(file, 'utf-8')
+                            const newText = privateTs.textChanges.applyChanges(oldText, change.textChanges)
+                            fs.writeFileSync(file, newText)
+                        }
+                    }
+                    catch (e) {
+                        console.log(file + "FAILED" + e.toString())
                     }
                 }
                 else {

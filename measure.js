@@ -14,8 +14,8 @@ function rebuild(commit) {
     sh.exec('git checkout ' + commit)
     // re-build
     sh.exec('npm install')
-    sh.exec('jake clean')
-    sh.exec('jake')
+    sh.exec('gulp clean')
+    sh.exec('gulp')
     sh.popd()
 }
 
