@@ -3,6 +3,8 @@ const sh = require('shelljs')
 const cp = require('child_process')
 const path = require('path')
 const vm = require('vm')
+
+const ts = require('./TypeScript/built/local/typescript')
 const { read, countAnys } = require('./measure')
 
 function getCommit() {
@@ -19,7 +21,7 @@ function getCommit() {
  * Shamelessly copied from TypeScript/src/harness/externalTestRunner.ts, then somewhat simplified.
  * @param {string} repo */
 function resetUserTest(repo) {
-    let cwd = `/home/nathansa/TypeScript/tests/cases/user/${repo}`
+    let cwd = `./TypeScript/tests/cases/user/${repo}`
     const directoryName = repo
     const timeout = 600000
     const stdio = "inherit"
@@ -31,8 +33,8 @@ function resetUserTest(repo) {
         if (reset.status !== 0) throw new Error(`git reset for ${directoryName} failed: ${reset.stderr.toString()}`)
         const clean = cp.spawnSync("git", ["clean", "-f"], { cwd: submoduleDir, timeout, shell: true, stdio })
         if (clean.status !== 0) throw new Error(`git clean for ${directoryName} failed: ${clean.stderr.toString()}`)
-        const update = cp.spawnSync("git", ["submodule", "update", "--init", "--remote", "."], { cwd: submoduleDir, timeout, shell: true, stdio })
-        if (update.status !== 0) throw new Error(`git submodule update for ${directoryName} failed: ${update.stderr.toString()}`)
+        const pull = cp.spawnSync("git", ["pull", "-f"], { cwd: submoduleDir })
+        if (pull.status !== 0) throw new Error(`git pull ${directoryName} failed: ${pull.stderr.toString()}`)
 
         /** @type {{ types: string[] }} */
         const config = JSON.parse(fs.readFileSync(path.join(cwd, "test.json"), { encoding: "utf8" }))
@@ -64,7 +66,6 @@ function resetUserTest(repo) {
  */
 function codeFix(repos, getCount, refactorAll) {
     const { commit, subject, date } = getCommit()
-    const ts = require('./TypeScript/built/local/typescript')
 
     /** @type {BeforeAfter} */
     const anys = {}
@@ -77,9 +78,9 @@ function codeFix(repos, getCount, refactorAll) {
         if (repo === 'chrome-devtools-frontend') {
             continue
         }
-        const path = fs.existsSync(`/home/nathansa/TypeScript/tests/cases/user/${repo}/tsconfig.json`) ?
-            `/home/nathansa/TypeScript/tests/cases/user/${repo}/` :
-            `/home/nathansa/TypeScript/tests/cases/user/${repo}/${repo}/`
+        const path = fs.existsSync(`./TypeScript/tests/cases/user/${repo}/tsconfig.json`) ?
+            `./TypeScript/tests/cases/user/${repo}/` :
+            `./TypeScript/tests/cases/user/${repo}/${repo}/`
         const config = ts.parseJsonSourceFileConfigFileContent(
             ts.readJsonConfigFile(path + 'tsconfig.json', fn => fs.readFileSync(fn, { encoding: "utf-8" })),
             ts.sys,
@@ -107,10 +108,10 @@ function codeFix(repos, getCount, refactorAll) {
         // NOTE: Make sure to run a baseline version that is supposed to have the exact same counts
         // before and after. The refactor probably doesn't work well enough to actually make this happen!
         const [beforeAnys, beforeErrors] = getCount(ts, program)
-        console.log(`  (${beforeAnys})`)
+        console.log(`  { beforeAnys: ${beforeAnys}, beforeErrors: ${beforeErrors} }`)
         refactorAll(ts, program, service)
         const [afterAnys, afterErrors] = getCount(ts, ts.createProgram(config.fileNames, config.options))
-        console.log(`  (${afterAnys})`)
+        console.log(`  { afterAnys: ${afterAnys}, afterErrors: ${afterErrors} }`)
         anys[repo] = [beforeAnys, afterAnys]
         errors[repo] = [beforeErrors, afterErrors]
     }
@@ -134,6 +135,9 @@ function main() {
                         for (const change of changes) {
                             const oldText = fs.readFileSync(file, 'utf-8')
                             const newText = privateTs.textChanges.applyChanges(oldText, change.textChanges)
+                            if (oldText !== newText) {
+                                console.log(`changed ${file}; length ${oldText.length} -> ${newText.length}`)
+                            }
                             fs.writeFileSync(file, newText)
                         }
                     }
