@@ -21,7 +21,7 @@ function getCommit() {
  * Shamelessly copied from TypeScript/src/harness/externalTestRunner.ts, then somewhat simplified.
  * @param {string} repo */
 function resetUserTest(repo) {
-    let cwd = `./TypeScript/tests/cases/user/${repo}`
+    let cwd = `../TypeScript/tests/cases/user/${repo}`
     const directoryName = repo
     const timeout = 600000
     const stdio = "inherit"
@@ -57,14 +57,9 @@ function resetUserTest(repo) {
 /**
  * compile and get+count errors
  * @param {string[]} repos
- * @param {(ts: typeof import('./TypeScript/built/local/typescript'),
-            program: import('./TypeScript/built/local/typescript').Program) => [number, number]} getCount
- * @param {(ts: typeof import('./TypeScript/built/local/typescript'),
-            program: import('./TypeScript/built/local/typescript').Program,
-            service: import('./TypeScript/built/local/typescript').LanguageService) => void} refactorAll
  * @return {{ commit: string, count: RefactorCount }}
  */
-function codeFix(repos, getCount, refactorAll) {
+function codeFix(repos) {
     const { commit, subject, date } = getCommit()
 
     /** @type {BeforeAfter} */
@@ -107,10 +102,36 @@ function codeFix(repos, getCount, refactorAll) {
         // (1) count (2) do refactoring (3) count again
         // NOTE: Make sure to run a baseline version that is supposed to have the exact same counts
         // before and after. The refactor probably doesn't work well enough to actually make this happen!
-        const [beforeAnys, beforeErrors] = getCount(ts, program)
+        const [beforeAnys, beforeErrors] = countErrorsAndAnys(ts, program)
         console.log(`  { beforeAnys: ${beforeAnys}, beforeErrors: ${beforeErrors} }`)
-        refactorAll(ts, program, service)
-        const [afterAnys, afterErrors] = getCount(ts, ts.createProgram(config.fileNames, config.options))
+
+        /** @type {any} */
+        const privateTs = ts
+        for (const file of program.getRootFileNames()) {
+            const sourceFile = program.getSourceFile(file)
+            if (sourceFile) {
+                try {
+                    const { changes } = service.getCombinedCodeFix({ type: "file", fileName: file }, "inferFromUsage", {}, {})
+                    for (const change of changes) {
+                        const oldText = fs.readFileSync(file, 'utf-8')
+                        const newText = privateTs.textChanges.applyChanges(oldText, change.textChanges)
+                        if (oldText !== newText) {
+                            console.log(`changed ${file}; length ${oldText.length} -> ${newText.length}`)
+                        }
+                        fs.writeFileSync(file, newText)
+                    }
+                }
+                catch (e) {
+                    console.log(file + "FAILED" + e.toString())
+                }
+            }
+            else {
+                throw new Error("couldn't find " + file)
+            }
+        }
+
+
+        const [afterAnys, afterErrors] = countErrorsAndAnys(ts, ts.createProgram(config.fileNames, config.options))
         console.log(`  { afterAnys: ${afterAnys}, afterErrors: ${afterErrors} }`)
         anys[repo] = [beforeAnys, afterAnys]
         errors[repo] = [beforeErrors, afterErrors]
@@ -118,38 +139,19 @@ function codeFix(repos, getCount, refactorAll) {
     return { commit, count: {subject, date, anys, errors}}
 }
 
+/**
+ * @param {ts} ts
+ * @param {ts.Program} program
+ * @return {[number, number]}
+ */
+function countErrorsAndAnys(ts, program) {
+    return [/** @type {*} */(countAnys)(ts, program), ts.getPreEmitDiagnostics(program).length]
+}
+
 function main() {
     /** @type {Refactors} */
     const diffs = read('./diffs.json')
-    const result = codeFix(
-        read('./repos.json'),
-        (ts, program) => [/** @type {*} */(countAnys)(ts, program), ts.getPreEmitDiagnostics(program).length],
-        (ts, program, service) => {
-            /** @type {any} */
-            const privateTs = ts
-            for (const file of program.getRootFileNames()) {
-                const sourceFile = program.getSourceFile(file)
-                if (sourceFile) {
-                    try {
-                        const { changes } = service.getCombinedCodeFix({ type: "file", fileName: file }, "inferFromUsage", {}, {})
-                        for (const change of changes) {
-                            const oldText = fs.readFileSync(file, 'utf-8')
-                            const newText = privateTs.textChanges.applyChanges(oldText, change.textChanges)
-                            if (oldText !== newText) {
-                                console.log(`changed ${file}; length ${oldText.length} -> ${newText.length}`)
-                            }
-                            fs.writeFileSync(file, newText)
-                        }
-                    }
-                    catch (e) {
-                        console.log(file + "FAILED" + e.toString())
-                    }
-                }
-                else {
-                    throw new Error("couldn't find " + file)
-                }
-            }
-        })
+    const result = codeFix(read('./repos.json'))
     diffs[result.commit] = result.count
     fs.writeFileSync('./diffs.json', JSON.stringify(diffs))
 }
