@@ -25,8 +25,6 @@ function resetUserTest(repo) {
     const directoryName = repo
     const timeout = 600000
     const stdio = "inherit"
-    /** @type {string[] | undefined} */
-    let types
     if (fs.existsSync(path.join(cwd, "test.json"))) {
         const submoduleDir = path.join(cwd, directoryName)
         const reset = cp.spawnSync("git", ["reset", "HEAD", "--hard"], { cwd: submoduleDir, timeout, shell: true, stdio })
@@ -35,10 +33,6 @@ function resetUserTest(repo) {
         if (clean.status !== 0) throw new Error(`git clean for ${directoryName} failed: ${clean.stderr.toString()}`)
         const pull = cp.spawnSync("git", ["pull", "-f"], { cwd: submoduleDir })
         if (pull.status !== 0) throw new Error(`git pull ${directoryName} failed: ${pull.stderr.toString()}`)
-
-        /** @type {{ types: string[] }} */
-        const config = JSON.parse(fs.readFileSync(path.join(cwd, "test.json"), { encoding: "utf8" }))
-        types = config.types
 
         cwd = submoduleDir
     }
