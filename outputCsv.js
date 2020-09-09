@@ -65,7 +65,7 @@ function diffs2(refactors) {
     let rs = repos.filter(r => r !== 'chrome-devtools-frontend')
     let beforeSum = 0
     const acc = [['ANYS']]
-    acc.push(['', 'BEFORE', ...Object.keys(refactors).map(commit => refactors[commit].subject)])
+    acc.push(['', 'BEFORE', ...Object.keys(refactors).map(commit => '"' + refactors[commit].subject + '"')])
     for (const r of rs) {
         let first = true
         const row = [r]
@@ -94,7 +94,7 @@ function diffs2(refactors) {
     acc.push([''])
     acc.push(['ERRORS'])
 
-    acc.push(['', ...Object.keys(refactors).map(commit => refactors[commit].subject)])
+    acc.push(['', ...Object.keys(refactors).map(commit => '"' + refactors[commit].subject + '"')])
     for (const r of rs) {
         const row = [r]
         for (const commit in refactors) {
