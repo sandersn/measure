@@ -53,7 +53,7 @@ function flatten(projects) {
     for (const [projectname,project] of projects) {
         for (const [filename, file] of project) {
             for (const line of file) {
-                acc.push([projectname, /*filename, */line].join(' '))
+                acc.push([projectname, filename, line].join(' '))
             }
         }
     }
