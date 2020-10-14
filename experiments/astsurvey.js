@@ -23,13 +23,9 @@ for (const file of process.argv.slice(2)) {
      * @returns {void}
      */
     const walk = function (node) {
-        if (ts.isVariableDeclaration(node)
-            && node.initializer
-            && ts.isCallExpression(node.initializer)
-            && ts.isIdentifier(node.initializer.expression)
-            && node.initializer.expression.escapedText === "require"
-            && ts.isObjectBindingPattern(node.name)
-            && node.name.elements.some(e => ts.isObjectBindingPattern(e.name))) {
+        /** @type {ts.TypeNode | undefined } */
+        const t = ts.getEffectiveTypeAnnotationNode(node)
+        if (t && t.kind === ts.SyntaxKind.NullKeyword) {
             console.log(file, ":", sourceFile.text.slice(node.pos, node.end))
         }
         return ts.forEachChild(node, walk)
