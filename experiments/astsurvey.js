@@ -23,10 +23,12 @@ for (const file of process.argv.slice(2)) {
      * @returns {void}
      */
     const walk = function (node) {
-        /** @type {ts.TypeNode | undefined } */
-        const t = ts.getEffectiveTypeAnnotationNode(node)
-        if (t && t.kind === ts.SyntaxKind.NullKeyword) {
-            console.log(file, ":", sourceFile.text.slice(node.pos, node.end))
+        if (node.kind === ts.SyntaxKind.PropertyDeclaration) {
+            /** @type {ts.TypeNode | undefined } */
+            const t = ts.getEffectiveTypeAnnotationNode(node)
+            if (t && t.kind === ts.SyntaxKind.NullKeyword) {
+                console.log(file, ":", sourceFile.text.slice(node.pos, node.end))
+            }
         }
         return ts.forEachChild(node, walk)
     }
