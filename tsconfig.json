@@ -15,6 +15,7 @@
         "experiments/overloads.js",
         "experiments/consecutiveJsdoc.js",
         "experiments/grepsurvey.js",
+        "experiments/multilinegrepsurvey.js",
         "experiments/astsurvey.js",
         "outputCsv.js",
         "refactorAll.js",

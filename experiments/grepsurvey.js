@@ -3,11 +3,14 @@
 /** @typedef {string} Content */
 /** @typedef {Map<ProjectName, Map<FileName, Set<Content>>>} Projects */
 
+// here's a good grep
+// find . -name '*.ts' | xargs grep '@return' | cut -c1-200 >~/src/measure/experiments/user-ts-return.txt
 
 const fs = require('fs')
 const original = fs.readFileSync('allrefs.txt', 'utf8').split('\n')
 const lines = /** @type {string[]} */(original.map(cleanup).filter(Boolean))
 const projects = makeProjects(lines)
+
 
 /** @param {string[]} lines */
 function makeProjects(lines) {
