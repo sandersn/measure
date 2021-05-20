@@ -23,11 +23,18 @@ for (const file of process.argv.slice(2)) {
      * @returns {void}
      */
     const walk = function (node) {
-        if (ts.isRequireVariableDeclaration(node, true) && node.kind !== ts.SyntaxKind.BindingElement) {
-            if (!ts.isSourceFile(node.parent.parent)) {
-                const text = sourceFile.text.slice(node.pos, node.end).replace(/\n/g, '')
-                console.log(file + ":", text)
+        if (ts.isPropertyAccessExpression(node)
+            && ts.isIdentifier(node.expression)
+            && node.expression.escapedText === "Object"
+            && node.name.escapedText === "defineProperties") {
+            // const text = sourceFile.text.slice(node.pos, node.end).replace(/\n/g, '')
+            let path = []
+            let cur = node.parent
+            while (cur) {
+                path.push(ts.SyntaxKind[cur.kind])
+                cur = cur.parent;
             }
+            console.log(file + ":", node.pos, path.slice(0,2))
         }
         return ts.forEachChild(node, walk)
     }
