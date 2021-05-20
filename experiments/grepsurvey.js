@@ -7,9 +7,10 @@
 // find . -name '*.ts' | xargs grep '@return' | cut -c1-200 >~/src/measure/experiments/user-ts-return.txt
 
 const fs = require('fs')
-const original = fs.readFileSync('allrefs.txt', 'utf8').split('\n')
+const original = fs.readFileSync('nontoplevel.txt', 'utf8').split('\n')
 const lines = /** @type {string[]} */(original.map(cleanup).filter(Boolean))
 const projects = makeProjects(lines)
+fs.writeFileSync('allprojects.txt', flatten(projects).join('\n'))
 
 
 /** @param {string[]} lines */
@@ -63,7 +64,6 @@ function flatten(projects) {
     return acc
 }
 
-fs.writeFileSync('allprojects.txt', flatten(projects).join('\n'))
 
 /** @param {string} line */
 function projectFile(line) {

@@ -6,7 +6,7 @@
 // walking up the tree a bit to see if the containing structure matches
 const ts = require('typescript')
 const fs = require('fs')
-console.error(process.argv.slice(2).length)
+// console.error(process.argv.slice(2).length)
 let i = 0
 for (const file of process.argv.slice(2)) {
     i++
@@ -23,11 +23,10 @@ for (const file of process.argv.slice(2)) {
      * @returns {void}
      */
     const walk = function (node) {
-        if (node.kind === ts.SyntaxKind.PropertyDeclaration) {
-            /** @type {ts.TypeNode | undefined } */
-            const t = ts.getEffectiveTypeAnnotationNode(node)
-            if (t && t.kind === ts.SyntaxKind.NullKeyword) {
-                console.log(file, ":", sourceFile.text.slice(node.pos, node.end))
+        if (ts.isRequireVariableDeclaration(node, true) && node.kind !== ts.SyntaxKind.BindingElement) {
+            if (!ts.isSourceFile(node.parent.parent)) {
+                const text = sourceFile.text.slice(node.pos, node.end).replace(/\n/g, '')
+                console.log(file + ":", text)
             }
         }
         return ts.forEachChild(node, walk)
