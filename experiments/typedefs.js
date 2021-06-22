@@ -1,4 +1,5 @@
 // for #43677 which fixes #43534
+// test text to test commit from mac
 const fs = require('fs')
 const tslines = fs.readFileSync('./ts-typedefs.txt', 'utf8').split('\n')
 const jslines = fs.readFileSync('./js-typedefs.txt', 'utf8').split('\n')
@@ -11,7 +12,7 @@ function stats(lines) {
     let errors = 0
     let singleTypedefs = 0
     let allTypedefs = 0
-    let other = [] // TODO: Just list these instead of counting
+    let other = []
     for (const line of lines) {
         const tags = parseTags(line)
         if (tags.length === 0)
