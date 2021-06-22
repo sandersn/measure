@@ -17,6 +17,8 @@
         "experiments/grepsurvey.js",
         "experiments/multilinegrepsurvey.js",
         "experiments/astsurvey.js",
+        "experiments/compileRandomJs.js",
+        "experiments/typedefs.js",
         "outputCsv.js",
         "refactorAll.js",
         "githubPrs.js",
