@@ -15,7 +15,7 @@
     "@octokit/rest": "^15.11.2",
     "@types/node": "^10.17.29",
     "@types/shelljs": "^0.8.8",
-    "shelljs": "^0.8.4",
+    "shelljs": "^0.8.5",
     "typescript": "^4.4.0-dev.20210520"
   }
 }
