@@ -53,7 +53,7 @@ type Kinds = Map<string, Set<string>>;
 const kindmap: Kinds = new Map();
 for (const fullfile of files) {
   const { file, project } = idProject(fullfile);
-  findJSDocCallbackTags(
+  findJSDocTags(
     path.join("/home/nathan/src/typescript-error-deltas", fullfile),
     path.join(project, file),
     kindmap
@@ -69,7 +69,7 @@ for (const [kind, project] of kindmap) {
   }
 }
 
-function findJSDocCallbackTags(fullfile: string, file: string, kindmap: Map<string, Set<string>>) {
+function findJSDocTags(fullfile: string, file: string, kindmap: Map<string, Set<string>>) {
   let fileContents;
   try {
     fileContents = fs.readFileSync(fullfile, "utf8");
@@ -95,17 +95,6 @@ function findJSDocCallbackTags(fullfile: string, file: string, kindmap: Map<stri
         visit(tag)
       }
     }
-    // for (const tag of ts.getAllJSDocTags(node, (tag): tag is ts.JSDocTag => interesting.has(tag.kind))) {
-    //   // console.log(unaliasKind(tag.kind))
-    //   if (tag === node) continue;
-    //   const tagkind = unaliasKind(tag.kind);
-    //   console.log(tagkind, nodekind, tag.getStart(), tag.getEnd(), node.getStart(), node.getEnd());
-    //   const kind = kindmap.get(tagkind) || new Set();
-    //   const key = `${tag.getStart()},${tag.getEnd()},${file}`;
-    //   kind.add(key);
-    //   kindmap.set(tagkind, kind);
-    //   ts.forEachChild(tag, visit);
-    // }
     if (interesting.has(node.kind)) {
       const kind = kindmap.get(nodekind) || new Set();
       const key = `${node.getStart()},${node.getEnd()},${file}`;
