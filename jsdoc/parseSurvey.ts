@@ -53,18 +53,13 @@ type Kinds = Map<string, Set<string>>;
 const kindmap: Kinds = new Map();
 for (const fullfile of files) {
   const { file, project } = idProject(fullfile);
-  findJSDocTags(
-    path.join("/home/nathan/src/typescript-error-deltas", fullfile),
-    path.join(project, file),
-    kindmap
-  );
+  findJSDocTags(path.join("/home/nathan/src/typescript-error-deltas", fullfile), path.join(project, file), kindmap);
 }
 
 console.log(kindmap.size);
 for (const [kind, project] of kindmap) {
   console.log(kind, "=>", project.size);
   for (const location of project) {
-    // if (kind === "JSDocText" || kind === "JSDocTag" || file.endsWith(".ts")) continue;
     console.log("  ", location);
   }
 }
@@ -92,7 +87,7 @@ function findJSDocTags(fullfile: string, file: string, kindmap: Map<string, Set<
     const nodekind = unaliasKind(node.kind);
     if ((node as any).jsDoc) {
       for (const tag of (node as any).jsDoc) {
-        visit(tag)
+        visit(tag);
       }
     }
     if (interesting.has(node.kind)) {
