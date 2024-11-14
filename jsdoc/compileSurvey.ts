@@ -17,11 +17,18 @@ import fs from "fs";
 import { idProject } from "./core.ts";
 import type { ProjectName, Projects, FileLocationKey, Payload } from "./core.ts";
 const original: RawUsage[] = fs
-  .readFileSync("jsdoc-syntax.txt", "utf8")
+  // .readFileSync("jsdoc-syntax.txt", "utf8")
+  .readFileSync("jsdoc-semantics.txt", "utf8")
   .split("\n")
-  .map(l => {
+  .map((l, i) => {
     let x = l.trim();
-    if (x) return JSON.parse(l.trim());
+    if (x)
+      try {
+        return JSON.parse(l.trim());
+      } catch (e) {
+        console.error("Bad JSON on line", i);
+        throw e;
+      }
     else return { fileName: "NONE", position: { start: 0 }, type: "NONE" };
   });
 const projects = makeProjects(original.map(u => ({ ...u, ...idProject(u.fileName) })));

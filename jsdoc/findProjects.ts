@@ -8,6 +8,8 @@ import { idProject } from './core.ts'
 // [x] 6. find all files with a matching prefix, save that in a file (filterNewFiles.ts -> js-survey-recent-filenames.txt)
 // [x] 7. loop over all files, parsing and looking for particular nodes
 // [x] 8. output in a format similar to jsdoc-syntax-maps.txt (parseSurvey.ts -> jsdoc-syntax-maps-2.txt)
+// [ ] do (7) and (8) again, but for semantically interesting JS usage (inferred from syntax only)
+//     (semanticSurvey -> jsdoc-semantic-maps-2.txt)
 
 const original = fs
   .readFileSync("js-survey-filenames.txt", "utf8")
