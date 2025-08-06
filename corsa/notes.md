@@ -1,5 +1,7 @@
 # three.js
 
+unchecked JS
+
 ## Notes
 
 1. can't `export * from 'x.js'` where x.js is an empty file (not a module)
@@ -35,6 +37,8 @@ How much worse is the unchecked JS experience going to be for three.js?
 
 # svelte
 
+JS-in-TS
+
 https://github.com/sveltejs/svelte/pull/16485
 
 1. Inference to unknown instead of any--requires cast/annotations back to any.
@@ -46,12 +50,14 @@ https://github.com/sveltejs/svelte/pull/16485
 4. Runner-up: stricter signature-to-signature checking, which results in hideous messages if your types are complex (Svelte's types are complex). Fortunately only showed up twice I think.
 
 # unifiedjs
+JS-in-TS
 
 1. `@template` tags are no longer shared between `@overload` tags. You must provide them for each overload, right before the `@overload` tag.
 
 https://github.com/unifiedjs/unified/pull/264
 
 # vfile-message
+JS-in-TS
 
 1. Class properties need initialisers; you can't put `@type` on an ExpressionStatement anymore.
 
@@ -59,4 +65,28 @@ https://github.com/vfile/vfile-message/pull/21
 
 # video.js
 
+unchecked JS
+
 Works fine out of the box.
+
+# axios
+
+unchecked JS
+
+## Notes
+
+1. Constructor functions aren't supported yet.
+2. Stricter arity checking.
+3. `Object` no longer means `any`.
+4. `Boolean` no longer means `boolean`, also `Number`, `String`, `function` etc.
+4. No expandos on vars with non-empty object initialisers.
+16. `Object.<string, string>` synonym for `Record<string, string>` isn't supported anymore.
+14. Signature assignability is stricter -- loose arity is gone.
+8. Errors on calls to multiple overloads always report the error on just the last overload.
+
+There's only one constructor function that I see but it's AxiosError so it's used all over everywhere.
+
+## Experience
+
+Axios uses lots of dynamic building of objects. Corsa is worse at understanding these than Strada, but not by much. 
+It also uses the Capital names for built-in types a lot, which causes that code to be much less useful than in Strada.
