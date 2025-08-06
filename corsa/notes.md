@@ -90,3 +90,35 @@ There's only one constructor function that I see but it's AxiosError so it's use
 
 Axios uses lots of dynamic building of objects. Corsa is worse at understanding these than Strada, but not by much. 
 It also uses the Capital names for built-in types a lot, which causes that code to be much less useful than in Strada.
+
+# github-readme-stats
+
+unchecked JS, but with `@ts-check` on a number of files
+
+## Notes
+
+1. `const=require` is able to resolve now, even in a file with `import`, even with a non-standard `require`.
+2. `object?=` is not recognised as the start of a JSDocObjectLiteral (nested params), and in Corsa it's misconstrued as `object` rather than `any`.
+3. `object` no longer means `any`.
+
+- (1) is a simplification of Strada's rules, but I am pretty sure it works better in practise, like here.
+- They want `object` to mean `Record<string, any>`.
+
+## Experience
+
+Corsa has about twice the errors of Strada, but the codebase is almost clean already. Only a couple of things to fix, and `require`'s new simpler rules actually work better.
+
+# uptime-kuma
+
+unchecked JS
+
+## Notes
+
+1. default import works in Corsa but not Strada. Not sure why.
+2. *fewer* did-you-mean suggestions than Strada????
+3. *more* errors on unresolved types in JSDoc????
+4. can't declare `@callback` in the body of an object literal.
+
+## Experience
+
+Overall better, since default import works. I think it's because we changed the target, etc for JS to esnext?

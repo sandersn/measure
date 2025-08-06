@@ -1,0 +1,95 @@
+src/main.js(6,17): error TS2307: Cannot find module './App.vue' or its corresponding type declarations.
+src/main.js(18,25): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/main.js(57,12): error TS2339: Property 'app' does not exist on type 'Window & typeof globalThis'.
+src/mixins/datetime.js(22,13): error TS2322: Type 'string' is not assignable to type 'Dayjs'.
+src/mixins/datetime.js(78,40): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type 'string | number | Date | Dayjs' is not assignable to parameter of type 'string | number'.
+      Type 'Date' is not assignable to type 'string | number'.
+src/mixins/lang.js(3,21): error TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', 'node18', or 'nodenext'.
+src/mixins/lang.js(3,33): error TS2339: Property 'glob' does not exist on type 'ImportMeta'.
+src/mixins/socket.js(8,48): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+src/mixins/socket.js(218,33): error TS2322: Type 'number | boolean' is not assignable to type 'number | false'.
+  Type 'true' is not assignable to type 'number | false'.
+src/mixins/socket.js(222,33): error TS2322: Type 'number | boolean' is not assignable to type 'number | false'.
+  Type 'true' is not assignable to type 'number | false'.
+src/mixins/socket.js(337,22): error TS2304: Cannot find name 'Socket'.
+src/mixins/socket.js(349,27): error TS2339: Property 'msg' does not exist on type 'object'.
+src/mixins/socket.js(350,21): error TS2339: Property 'msgi18n' does not exist on type 'object'.
+src/mixins/socket.js(358,21): error TS2339: Property 'ok' does not exist on type 'object'.
+src/mixins/socket.js(394,20): error TS2304: Cannot find name 'loginCB'.
+src/mixins/socket.js(459,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(469,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(478,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(488,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(497,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(506,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(518,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(530,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(543,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(553,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(564,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(575,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(585,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(595,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(605,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(615,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(625,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(634,20): error TS2304: Cannot find name 'int'.
+src/mixins/socket.js(635,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(656,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(666,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(676,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(685,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(696,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(707,20): error TS2304: Cannot find name 'socketCB'.
+src/mixins/socket.js(823,20): error TS2304: Cannot find name 'FRONTEND_VERSION'.
+src/router.js(3,25): error TS2307: Cannot find module './layouts/EmptyLayout.vue' or its corresponding type declarations.
+src/router.js(4,20): error TS2307: Cannot find module './layouts/Layout.vue' or its corresponding type declarations.
+src/router.js(5,23): error TS2307: Cannot find module './pages/Dashboard.vue' or its corresponding type declarations.
+src/router.js(6,27): error TS2307: Cannot find module './pages/DashboardHome.vue' or its corresponding type declarations.
+src/router.js(7,21): error TS2307: Cannot find module './pages/Details.vue' or its corresponding type declarations.
+src/router.js(8,25): error TS2307: Cannot find module './pages/EditMonitor.vue' or its corresponding type declarations.
+src/router.js(9,29): error TS2307: Cannot find module './pages/EditMaintenance.vue' or its corresponding type declarations.
+src/router.js(10,18): error TS2307: Cannot find module './pages/List.vue' or its corresponding type declarations.
+src/router.js(11,31): error TS2307: Cannot find module './pages/Settings.vue' or its corresponding type declarations.
+src/router.js(12,19): error TS2307: Cannot find module './pages/Setup.vue' or its corresponding type declarations.
+src/router.js(13,24): error TS2307: Cannot find module './pages/StatusPage.vue' or its corresponding type declarations.
+src/router.js(14,19): error TS2307: Cannot find module './pages/Entry.vue' or its corresponding type declarations.
+src/router.js(15,30): error TS2307: Cannot find module './pages/ManageStatusPage.vue' or its corresponding type declarations.
+src/router.js(16,27): error TS2307: Cannot find module './pages/AddStatusPage.vue' or its corresponding type declarations.
+src/router.js(17,22): error TS2307: Cannot find module './pages/NotFound.vue' or its corresponding type declarations.
+src/router.js(18,25): error TS2307: Cannot find module './components/settings/Docker.vue' or its corresponding type declarations.
+src/router.js(19,32): error TS2307: Cannot find module './pages/MaintenanceDetails.vue' or its corresponding type declarations.
+src/router.js(20,31): error TS2307: Cannot find module './pages/ManageMaintenance.vue' or its corresponding type declarations.
+src/router.js(21,21): error TS2307: Cannot find module './components/settings/APIKeys.vue' or its corresponding type declarations.
+src/router.js(22,27): error TS2307: Cannot find module './pages/SetupDatabase.vue' or its corresponding type declarations.
+src/router.js(25,24): error TS2307: Cannot find module './components/settings/Appearance.vue' or its corresponding type declarations.
+src/router.js(26,21): error TS2307: Cannot find module './components/settings/General.vue' or its corresponding type declarations.
+src/router.js(27,36): error TS2307: Cannot find module './components/settings/Notifications.vue' or its corresponding type declarations.
+src/router.js(28,26): error TS2307: Cannot find module './components/settings/ReverseProxy.vue' or its corresponding type declarations.
+src/router.js(29,18): error TS2307: Cannot find module './components/settings/Tags.vue' or its corresponding type declarations.
+src/router.js(30,28): error TS2307: Cannot find module './components/settings/MonitorHistory.vue' or its corresponding type declarations.
+src/router.js(31,31): error TS2307: Cannot find module './components/settings/Security.vue' or its corresponding type declarations.
+src/router.js(32,21): error TS2307: Cannot find module './components/settings/Proxies.vue' or its corresponding type declarations.
+src/router.js(33,19): error TS2307: Cannot find module './components/settings/About.vue' or its corresponding type declarations.
+src/router.js(34,28): error TS2307: Cannot find module './components/settings/RemoteBrowsers.vue' or its corresponding type declarations.
+src/router.js(198,5): error TS2322: Type '({ path: string; component: any; children?: undefined; } | { path: string; component: any; children: { path: string; component: any; children: ({ name: string; path: string; component: any; children: { path: string; component: any; children: { ...; }[]; }[]; } | { ...; } | { ...; })[]; }[]; })[]' is not assignable to type 'readonly RouteRecordRaw[]'.
+  Type '{ path: string; component: any; children?: undefined; } | { path: string; component: any; children: { path: string; component: any; children: ({ name: string; path: string; component: any; children: { path: string; component: any; children: { ...; }[]; }[]; } | { ...; } | { ...; })[]; }[]; }' is not assignable to type 'RouteRecordRaw'.
+    Type '{ path: string; component: any; children?: undefined; }' is not assignable to type 'RouteRecordRaw'.
+      Type '{ path: string; component: any; children?: undefined; }' is not assignable to type 'RouteRecordSingleViewWithChildren'.
+        Property 'children' is optional in type '{ path: string; component: any; children?: undefined; }' but required in type 'RouteRecordSingleViewWithChildren'.
+src/util-frontend.js(95,20): error TS2552: Cannot find name 'DEVCONTAINER'. Did you mean 'isDevContainer'?
+src/util-frontend.js(95,49): error TS2552: Cannot find name 'DEVCONTAINER'. Did you mean 'isDevContainer'?
+src/util-frontend.js(108,12): error TS2304: Cannot find name 'CODESPACE_NAME'.
+src/util-frontend.js(108,40): error TS2304: Cannot find name 'GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN'.
+src/util-frontend.js(125,5): error TS2322: Type 'string' is not assignable to type 'RegExp'.
+src/util-frontend.js(190,9): error TS2322: Type 'boolean' is not assignable to type 'number'.
+src/util-frontend.js(211,9): error TS2322: Type 'boolean' is not assignable to type 'number'.
+src/util-frontend.js(223,70): error TS2345: Argument of type '{ numeric: string; }' is not assignable to parameter of type 'RelativeTimeFormatOptions'.
+  Types of property 'numeric' are incompatible.
+    Type 'string' is not assignable to type 'RelativeTimeFormatNumeric'.
+src/util-frontend.js(232,61): error TS2345: Argument of type '{ numeric: string; }' is not assignable to parameter of type 'RelativeTimeFormatOptions'.
+  Types of property 'numeric' are incompatible.
+    Type 'string' is not assignable to type 'RelativeTimeFormatNumeric'.
+src/util-frontend.js(256,67): error TS2345: Argument of type 'string' is not assignable to parameter of type 'RelativeTimeFormatUnit'.
