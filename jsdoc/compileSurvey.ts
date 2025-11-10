@@ -15,7 +15,10 @@ type Usage = {
 
 import fs from "fs";
 import { idProject } from "./core.ts";
-import type { ProjectName, Projects, FileLocationKey, Payload } from "./core.ts";
+import type { ProjectName  } from "./core.ts";
+export type FileLocationKey = string;
+export type Feature = string;
+export type Projects = Map<Feature, Set<FileLocationKey>> // ProjectName, Map<FileLocationKey, Feature>>;
 const original: RawUsage[] = fs
   // .readFileSync("jsdoc-syntax.txt", "utf8")
   .readFileSync("jsdoc-semantics.txt", "utf8")
@@ -32,31 +35,21 @@ const original: RawUsage[] = fs
     else return { fileName: "NONE", position: { start: 0 }, type: "NONE" };
   });
 const projects = makeProjects(original.map(u => ({ ...u, ...idProject(u.fileName) })));
-for (const [name, project] of projects) {
-  console.log(name, "=>", project.size);
-  for (const [file, kind] of project) {
-    if (kind === "JSDocText" || kind === "JSDocTag" || file.endsWith(".ts")) continue;
-    console.log("  ", file, "=>", kind);
+for (const [feature, locs] of projects) {
+  console.log(feature, "=>", locs.size);
+  for (const loc of Array.from(locs).sort()) {
+    if (loc.endsWith(".ts")) continue;
+    console.log("  ", loc);
   }
 }
 
 function makeProjects(usages: Usage[]) {
   const projects: Projects = new Map();
   for (const u of usages) {
-    const project: Map<FileLocationKey, Payload> = projects.get(u.project) || new Map();
-    projects.set(u.project, project);
+    const locs: Set<FileLocationKey> = projects.get(u.type) || new Set();
+    projects.set(u.type, locs);
     const key = `${u.position.start},${u.position.end ?? ""},${u.file}`;
-    const kind = project.get(key);
-    if (kind) {
-      if (kind !== u.type) {
-        const kinds = new Set(kind.split(","));
-        if (!kinds.has(u.type)) {
-          project.set(key, kind + "," + u.type);
-        }
-      }
-    } else {
-      project.set(key, u.type);
-    }
+    locs.add(key)
   }
   return projects;
 }

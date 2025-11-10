@@ -50,17 +50,70 @@ const files = fs
   .split("\n")
   .filter(l => l.trim());
 type Kinds = Map<string, Set<string>>;
-const kindmap: Kinds = new Map();
+type Assignments = Map<string, { total: number; binary: number; assignment: number }>;
+// const kindmap: Kinds = new Map();
+const kindmap: Assignments = new Map();
+let i = 0
 for (const fullfile of files) {
+  if (i > 1_000_000_000) break;
   const { file, project } = idProject(fullfile);
-  findJSDocTags(path.join("/home/nathan/src/typescript-error-deltas", fullfile), path.join(project, file), kindmap);
+  binaryAssignmentRatio(
+    path.join("/home/nathan/src/typescript-error-deltas", fullfile),
+    path.join(project, file),
+    kindmap
+  );
+  i++;
 }
 
 console.log(kindmap.size);
-for (const [kind, project] of kindmap) {
-  console.log(kind, "=>", project.size);
-  for (const location of project) {
-    console.log("  ", location);
+for (const [filename, { total, binary, assignment }] of kindmap) {
+  console.log(filename, "=>", binary, assignment, assignment / binary, total);
+}
+
+function binaryAssignmentRatio(fullfile: string, file: string, kindmap: Assignments) {
+  let fileContents;
+  try {
+    fileContents = fs.readFileSync(fullfile, "utf8");
+  } catch (e) {
+    if (
+      !/node_modules\/[-\w.]+?\.js$/.test(fullfile) &&
+      !/node_modules\/@[-\w.]+?\/[-\w.]+?\.js$/.test(fullfile) &&
+      !/node_modules\/ember-source\/dist\/packages\/backburner.js$/.test(fullfile)
+    ) {
+      console.error("Bad file", fullfile);
+      throw e;
+    } else {
+      // console.error("Skipping", fullfile);
+      return;
+    }
+  }
+  let total = 0;
+  let binary = 0;
+  let assignment = 0;
+  visit(ts.createSourceFile(fullfile, fileContents, ts.ScriptTarget.Latest, true));
+  // group by .ts/.js
+  const extension = path.extname(fullfile);
+  const sizeBucket = Math.floor(Math.log10(total)).toString();
+  const ext = kindmap.get(extension) ?? { total: 0, binary: 0, assignment: 0 };
+  const size = kindmap.get(sizeBucket) ?? { total: 0, binary: 0, assignment: 0 };
+  ext.total++;
+  size.total++;
+  ext.binary += binary;
+  size.binary += binary;
+  ext.assignment += assignment;
+  size.assignment += assignment;
+  kindmap.set(extension, ext);
+  kindmap.set(sizeBucket, size);
+
+  function visit(node: ts.Node) {
+    total++;
+    if (ts.isBinaryExpression(node)) {
+      binary++;
+      if (node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+        assignment++;
+      }
+    }
+    ts.forEachChild(node, visit);
   }
 }
 

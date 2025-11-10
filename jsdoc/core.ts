@@ -1,9 +1,6 @@
 import path from "path";
 import ts from "typescript";
 export type ProjectName = string;
-export type FileLocationKey = string;
-export type Payload = string;
-export type Projects = Map<ProjectName, Map<FileLocationKey, Payload>>;
 export type RawPrefixes = Array<{ project: string; prefix: string }>;
 /**
  * Split a usage's filename into project name and path within the project.

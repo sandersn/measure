@@ -6,15 +6,15 @@ import { idProject, unaliasKind } from "./core.ts";
 
 const files = fs
   .readFileSync("jsdoc-survey-recent-filenames.txt", "utf8")
-//   .readFileSync("js-test-filenames.txt", "utf8")
+  // .readFileSync("js-test-filenames.txt", "utf8")
   .split("\n")
-  .filter(l => l.trim());
+  .filter(isInteresting);
 type Kinds = Map<string, Set<string>>;
 const kindmap: Kinds = new Map();
 for (let fullfile of files) {
   const { file, project } = idProject(fullfile);
-    fullfile = path.join("/home/nathan/src/typescript-error-deltas", fullfile)
-//   fullfile = path.join("/home/nathan/src", fullfile);
+  fullfile = path.join("/home/nathan/src/typescript-error-deltas", fullfile)
+  // fullfile = path.join("/home/nathan/src", fullfile);
   findJSUsage(fullfile, path.join(project, file), kindmap);
 }
 
@@ -24,6 +24,13 @@ for (const [kind, project] of kindmap) {
   for (const location of project) {
     console.log("  ", location);
   }
+}
+
+function isInteresting(file: string) {
+  file = file.trim();
+  if (!file) return false;
+  if (file.includes("externs")) return false;
+  return true;
 }
 
 function findJSUsage(fullfile: string, file: string, usageMap: Map<string, Set<string>>) {
@@ -105,6 +112,46 @@ function findJSUsage(fullfile: string, file: string, usageMap: Map<string, Set<s
 function detect(sourceFile: ts.SourceFile, node: ts.Node, vars: Map<string, number>): string[] {
   if (ts.isJSDocFunctionType(node) && (ts as any).isJSDocConstructSignature(node)) {
     return ["function(new)"];
+  } else if (ts.isFunctionExpression(node)) {
+    const typeTags = ts.getAllJSDocTagsOfKind(node, ts.SyntaxKind.JSDocTypeTag);
+    if (typeTags.length) {
+      const ids = ["/** @type */function-expr"];
+      const tag = typeTags[0] as ts.JSDocTypeTag;
+      if (ts.isTypeReferenceNode(tag.typeExpression.type)) {
+        ids.push("/** @type ID */function-expr");
+      } 
+      return ids;
+    }
+  } else if (ts.isArrowFunction(node)) {
+    const typeTags = ts.getAllJSDocTagsOfKind(node, ts.SyntaxKind.JSDocTypeTag);
+    if (typeTags.length) {
+      const ids = ["/** @type */arrow"];
+      const tag = typeTags[0] as ts.JSDocTypeTag;
+      if (ts.isTypeReferenceNode(tag.typeExpression.type)) {
+        ids.push("/** @type ID */arrow");
+      } 
+      return ids;
+    }
+  } else if (ts.isFunctionDeclaration(node)) {
+    const typeTags = ts.getAllJSDocTagsOfKind(node, ts.SyntaxKind.JSDocTypeTag);
+    if (typeTags.length) {
+      const ids = ["/** @type */function-decl"];
+      const tag = typeTags[0] as ts.JSDocTypeTag;
+      if (ts.isTypeReferenceNode(tag.typeExpression.type)) {
+        ids.push("/** @type ID */function-decl");
+      } 
+      return ids;
+    }
+  } else if (ts.isMethodDeclaration(node)) {
+    const typeTags = ts.getAllJSDocTagsOfKind(node, ts.SyntaxKind.JSDocTypeTag);
+    if (typeTags.length) {
+      const ids = ["/** @type */other"];
+      const tag = typeTags[0] as ts.JSDocTypeTag;
+      if (ts.isTypeReferenceNode(tag.typeExpression.type)) {
+        ids.push("/** @type ID */other");
+      } 
+      return ids;
+    }
   } else if (ts.isJSDocTypedefTag(node) && ts.isVariableStatement(node.parent.parent)) {
     return ["/** @typedef */var p;"];
   } else if (
@@ -236,9 +283,9 @@ function detect(sourceFile: ts.SourceFile, node: ts.Node, vars: Map<string, numb
         return ["Boolean"];
       case "Object":
         if (node.typeArguments?.length == 2) {
-            return ["Object.<K,V>"];
+          return ["Object.<K,V>"];
         } else {
-        return ["Object"];
+          return ["Object"];
         }
       case "array":
         return ["array"];
@@ -249,6 +296,9 @@ function detect(sourceFile: ts.SourceFile, node: ts.Node, vars: Map<string, numb
       case "promise":
         return ["promise"];
     }
+  } else if (ts.isIdentifier(node) && node.text === "await") {
+    return ["await-id"];
   }
+  
   return [];
 }
